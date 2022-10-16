@@ -1,6 +1,7 @@
 package com.nttdata.bootcamp.msmovement.controller;
 
 import com.nttdata.bootcamp.msmovement.application.MovementService;
+import com.nttdata.bootcamp.msmovement.dto.MovementDto;
 import com.nttdata.bootcamp.msmovement.model.Movement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,10 +34,10 @@ public class MovementController {
     }
 
     @PostMapping
-    public Mono<ResponseEntity<Map<String, Object>>> saveMovement(@Valid @RequestBody Mono<Movement> monoMovement) {
+    public Mono<ResponseEntity<Map<String, Object>>> saveMovement(@Valid @RequestBody Mono<MovementDto> movementDto) {
         Map<String, Object> request = new HashMap<>();
-        return monoMovement.flatMap(Movement -> {
-            return service.save(Movement).map(c -> {
+        return movementDto.flatMap(mvDto -> {
+            return service.save(mvDto).map(c -> {
                 request.put("Credito", c);
                 request.put("mensaje", "Movimiento de Credito guardado con exito");
                 request.put("timestamp", new Date());
@@ -47,8 +48,8 @@ public class MovementController {
     }
 
     @PutMapping("/{idMovement}")
-    public Mono<ResponseEntity<Movement>> editMovement(@Valid @RequestBody Movement Movement, @PathVariable("idMovement") String idMovement) {
-        return service.update(Movement, idMovement)
+    public Mono<ResponseEntity<Movement>> editMovement(@Valid @RequestBody MovementDto movementDto, @PathVariable("idMovement") String idMovement) {
+        return service.update(movementDto, idMovement)
                 .map(c -> ResponseEntity.created(URI.create("/api/movements/".concat(idMovement)))
                         .contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
     }

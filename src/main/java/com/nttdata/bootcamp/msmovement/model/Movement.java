@@ -1,24 +1,24 @@
 package com.nttdata.bootcamp.msmovement.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-@Document(collection = "Movements")
+@Document(collection = "Movement")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Movement {
 
     @Id
     private String idMovement;
+
+    private String accountNumber;
 
     @NotNull(message = "no debe estar nulo")
     private Integer numberMovement;
@@ -28,6 +28,8 @@ public class Movement {
 
     @NotNull(message = "no debe estar nulo")
     private Double amount;
+
+    private Double balance;
 
     @NotEmpty(message = "no debe estar vacio")
     private String currency;

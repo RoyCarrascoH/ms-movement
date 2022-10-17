@@ -28,9 +28,15 @@ public class MovementController {
     }
 
     @GetMapping("/{idMovement}")
-    public Mono<ResponseEntity<Movement>> viewMovementsDetails(@PathVariable("idMovement") String idMovement) {
+    public Mono<ResponseEntity<Movement>> getMovementsDetails(@PathVariable("idMovement") String idMovement) {
         return service.findById(idMovement).map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(c))
                 .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/last/accountNumber/{accountNumber}")
+    public Mono<ResponseEntity<MovementDto>> getLastMovementsByAccountNumber(@PathVariable("accountNumber") String accountNumber) {
+        return service.findLastMovementsByAccountNumber(accountNumber)
+                .map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
     }
 
     @PostMapping

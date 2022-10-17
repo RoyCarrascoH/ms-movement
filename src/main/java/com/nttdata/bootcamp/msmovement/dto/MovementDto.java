@@ -5,11 +5,13 @@ import com.nttdata.bootcamp.msmovement.model.BankAccount;
 import com.nttdata.bootcamp.msmovement.model.Movement;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.codecs.jsr310.LocalDateCodec;
 import org.springframework.data.annotation.Id;
 import reactor.core.publisher.Mono;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Date;
 @Getter
 @Setter
@@ -98,6 +100,10 @@ public class MovementDto {
     }
 
     public Mono<Movement> MapperToMovement() {
+        LocalDateTime date = LocalDateTime.now();
+        log.info("ini validateMovementLimit-------: LocalDateTime.now()" + LocalDateTime.now());
+        log.info("ini validateMovementLimit-------date: " + date);
+
         Movement movement = Movement.builder()
                 //.idBankAccount(this.getIdBankAccount())
                 .accountNumber(this.getAccountNumber())
@@ -106,7 +112,7 @@ public class MovementDto {
                 .amount(this.getAmount())
                 .balance(this.getBalance())
                 .currency(this.getCurrency())
-                .movementDate(new Date())
+                .movementDate(date)
                 //.idCredit(this.getIdCredit())
                 //.idBankAccount(this.getIdBankAccount())
                 //.idLoan(this.getIdLoan())

@@ -105,10 +105,4 @@ public class MovementController {
         return service.creditByCreditNumber(creditNumber).map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
     }
 
-    @GetMapping("documentDocument/{documentDocument}")
-    public Mono<ResponseEntity<Movement>> paymentDocumentNumber(@PathVariable("creditNumber") Integer creditNumber){
-        return service.creditByCreditNumber(creditNumber).map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
-    }
-
-
 }

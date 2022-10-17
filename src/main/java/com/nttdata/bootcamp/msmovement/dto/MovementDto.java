@@ -24,11 +24,7 @@ public class MovementDto {
     @Id
     private String idMovement;
 
-    //@NotEmpty(message = "no debe estar vacío")
     private String accountNumber;
-
-    //@NotEmpty(message = "no debe estar vacío")
-    //private String numberDocument;
 
     private Integer numberMovement;
 
@@ -61,21 +57,18 @@ public class MovementDto {
         });
     }
 
-    public Mono<Boolean> validateMovementTypeCreditLoan(){
-        log.info("Inicio validateMovementTypeCreditLoan-------: " );
-        return Mono.just(this.getMovementType()).flatMap( ct -> {
+    public Mono<Boolean> validateMovementTypeCreditLoan() {
+        log.info("Inicio validateMovementTypeCreditLoan-------: ");
+        return Mono.just(this.getMovementType()).flatMap(ct -> {
             Boolean isOk = false;
-            if(this.getMovementType().equals("payment")){ // deposito.
-                isOk = true;
-            }
-            else if(this.getMovementType().equals("consumption")){ // retiro.
-                isOk = true;
-            }
-            else{
+            if (this.getMovementType().equals("payment")) { // pago.
+                return this.validateCreditCardAndLoanPayment();
+            } else if (this.getMovementType().equals("consumption")) { // consumo.
+                log.info("Fin validateMovementTypeCreditLoan-------: ");
+                return Mono.just(isOk);
+            } else {
                 return Mono.error(new ResourceNotFoundException("Tipo movimiento", "getMovementType", this.getMovementType()));
             }
-            log.info("Fin validateMovementTypeCreditLoan-------: " );
-            return Mono.just(isOk);
         });
     }
 
@@ -112,6 +105,25 @@ public class MovementDto {
                 }
 
             }
+            return Mono.just(isOk);
+        });
+    }
+
+    public Mono<Boolean> validateCreditCardAndLoanPayment() { //Validar Pago de Producto de Credito
+        log.info("Inicio validateCreditCardAndLoanPayment-------: ");
+        return Mono.just(this.getBalance()).flatMap(ct -> {
+            Boolean isOk = false;
+            if (this.getBalance() > 0.0) {
+                if (this.getAmount() <= this.getBalance()) {
+                    isOk = true;
+                    //this.setBalance(this.getBalance()-this.getAmount());
+                } else {
+                    return Mono.error(new ResourceNotFoundException("Monto de movimiento de credito(Pago) supera el saldo por pagar"));
+                }
+            } else {
+                return Mono.error(new ResourceNotFoundException("Movimiento Credito(Pago) no se puede realizar porque no tiene Saldo por pagar"));
+            }
+            log.info("Fin validateCreditCardAndLoanPayment-------: ");
             return Mono.just(isOk);
         });
     }

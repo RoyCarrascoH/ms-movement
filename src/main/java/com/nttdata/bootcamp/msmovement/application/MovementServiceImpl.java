@@ -41,12 +41,6 @@ public class MovementServiceImpl implements MovementService {
                 .flatMap(movementRepository::findById)
                 .switchIfEmpty(Mono.error(new ResourceNotFoundException("Movement", "IdMovement", idMovementCredit)));
     }
-    @Override
-    public Mono<MovementDto> findLastMovementsByAccountNumber(String accountNumber) {
-        log.info("ini findLastMovementsByAccountNumber-------accountNumber: " + accountNumber);
-        return Mono.just(accountNumber)
-                .flatMap(movementRepository::findLastMovementByAccount);
-    }
 
     @Override
     public Mono<Movement> save(MovementDto movementDto) {
@@ -111,4 +105,15 @@ public class MovementServiceImpl implements MovementService {
                 .flatMap(movementRepository::delete);
     }
 
+    @Override
+    public Mono<MovementDto> findLastMovementsByAccountNumber(String accountNumber) {
+        log.info("ini findLastMovementsByAccountNumber-------accountNumber: " + accountNumber);
+        return Mono.just(accountNumber)
+                .flatMap(movementRepository::findLastMovementByAccount);
+    }
+    @Override
+    public Flux<MovementDto> findMovementsByAccountNumber(String accountNumber) {
+        log.info("ini findMovementsByAccountNumber-------accountNumber: " + accountNumber);
+        return movementRepository.findMovementsByAccount(accountNumber);
+    }
 }

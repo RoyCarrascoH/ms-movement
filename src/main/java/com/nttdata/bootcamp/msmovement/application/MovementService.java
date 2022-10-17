@@ -14,4 +14,7 @@ public interface MovementService {
     public Mono<Movement> update(MovementDto movementDto, String idMovement);
 
     public Mono<Void> delete(String idMovement);
+
+    public Flux<MovementDto> findMovementsByAccountNumber(String accountNumber);
+
 }

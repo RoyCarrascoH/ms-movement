@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -44,27 +45,42 @@ public class MovementDto {
     @NotEmpty(message = "no debe estar vacio")
     private String currency;
 
-    public Mono<Boolean> validateMovementType(){
-        log.info("ini validateMovementType-------: " );
+    public Mono<Boolean> validateMovementType() {
+        log.info("ini validateMovementType-------: ");
+        return Mono.just(this.getMovementType()).flatMap(ct -> {
+            Boolean isOk = false;
+            if (this.getMovementType().equals("deposit")) { // deposito.
+                isOk = true;
+            } else if (this.getMovementType().equals("withdrawal")) { // retiro.
+                isOk = true;
+            } else {
+                return Mono.error(new ResourceNotFoundException("Tipo movimiento", "getMovementType", this.getMovementType()));
+            }
+            log.info("fn validateMovementType-------: ");
+            return Mono.just(isOk);
+        });
+    }
+
+    public Mono<Boolean> validateMovementTypeCreditLoan(){
+        log.info("Inicio validateMovementTypeCreditLoan-------: " );
         return Mono.just(this.getMovementType()).flatMap( ct -> {
             Boolean isOk = false;
-            if(this.getMovementType().equals("deposit")){ // deposito.
+            if(this.getMovementType().equals("payment")){ // deposito.
                 isOk = true;
-            }else if(this.getMovementType().equals("withdrawal")){ // retiro.
-                isOk = true;
-            }else if(this.getMovementType().equals("payment")){ // pago.
+            }
+            else if(this.getMovementType().equals("consumption")){ // retiro.
                 isOk = true;
             }
             else{
                 return Mono.error(new ResourceNotFoundException("Tipo movimiento", "getMovementType", this.getMovementType()));
             }
-            log.info("fn validateMovementType-------: " );
+            log.info("Fin validateMovementTypeCreditLoan-------: " );
             return Mono.just(isOk);
         });
     }
 
     public Mono<Boolean> validateAvailableAmount(BankAccount bankAccount, MovementDto lastMovement) {
-        log.info("ini validateMovementType-------: " );
+        log.info("ini validateMovementType-------: ");
         log.info("ini validateMovementType-------: lastMovement.toString() " + lastMovement.toString());
         return Mono.just(this.getMovementType()).flatMap(ct -> {
             Boolean isOk = false;

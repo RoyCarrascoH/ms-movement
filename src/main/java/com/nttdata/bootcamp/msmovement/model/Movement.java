@@ -9,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Document(collection = "Movement")
@@ -38,7 +39,7 @@ public class Movement {
     @NotEmpty(message = "no debe estar vacio")
     private String currency;
 
-    private Date movementDate;
+    private LocalDateTime movementDate;
 
     private Credit credit;
 

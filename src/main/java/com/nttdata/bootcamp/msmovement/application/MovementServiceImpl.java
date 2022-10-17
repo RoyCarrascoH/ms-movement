@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.Date;
 
 @Service
@@ -47,9 +49,51 @@ public class MovementServiceImpl implements MovementService {
     public Mono<Movement> save(MovementDto movementDto) {
         return movementDto.validateMovementType()
                 .flatMap(a -> findBankAccountByAccountNumber(movementDto.getAccountNumber()))
+                .flatMap(account -> validateMovementLimit(account, "save").then(Mono.just(account)))
                 .flatMap(account -> validateAvailableAmount(account, movementDto, "save"))
                 .flatMap(a -> movementDto.MapperToMovement(null))
                 .flatMap(mvt -> movementRepository.save(mvt));
+    }
+
+    public Mono<Boolean> validateMovementLimit(BankAccount bankAccount, String method) {
+        log.info("ini validateMovementLimit-------: ");
+
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH));
+        LocalDateTime dateNow = LocalDateTime.now();
+        String dayValue = "" + dateNow.getDayOfMonth();
+        String monthValue = (dateNow.getMonthValue() < 10 ? "0" : "") + dateNow.getMonthValue();
+
+        String endDate = dateNow.getYear() + "-" + monthValue + "-" + calendar.getActualMaximum(Calendar.DAY_OF_MONTH) + "T23:59:59.999Z";
+        String startDate = dateNow.getYear() + "-" + monthValue + "-0" + 1 + "T00:00:00.000Z";
+
+        log.info("ini validateMovementLimit-------bankAccount.getAccountNumber(): " + bankAccount.getAccountNumber());
+        log.info("ini validateMovementLimit-------startDate: " + startDate);
+        log.info("ini validateMovementLimit-------endDate: " + endDate);
+
+        if (bankAccount.getAccountType().equals("FixedTerm-account")) {
+            String movementDate = bankAccount.getMovementDate().toString();
+            log.info("ini validateMovementLimit-------movementDate: " + movementDate);
+            if (!dayValue.equals(movementDate)) {
+                return Mono.error(new ResourceNotFoundException("Fecha movimientos", "movementDate", movementDate));
+            }
+        }
+
+        if (bankAccount.getMaximumMovement() != null) {
+            return movementRepository.findMovementsByDateRange(startDate, endDate, bankAccount.getAccountNumber()).count()
+                    .flatMap(c -> {
+                        log.info("ini validateMovementLimit-------cantidad: " + c);
+                        log.info("ini validateMovementLimit-------cantidad: " + bankAccount.getMaximumMovement());
+                        if (c >= bankAccount.getMaximumMovement()) {
+                            return Mono.error(new ResourceNotFoundException("Máximo movimientos", "MaximumMovement", bankAccount.getMaximumMovement().toString()));
+                        } else {
+                            return Mono.just(true);
+                        }
+                    });
+        } else {
+            return Mono.just(true);
+        }
     }
 
     @Override
@@ -109,7 +153,7 @@ public class MovementServiceImpl implements MovementService {
                             c.setAmount(movementDto.getAmount());
                             c.setBalance(movementDto.getBalance());
                             c.setCurrency(movementDto.getCurrency());
-                            c.setMovementDate(new Date());
+                            c.setMovementDate(LocalDateTime.now());
                             //c.setIdCredit(movementDto.getIdCredit());
                             //c.setIdBankAccount(movementDto.getIdBankAccount());
                             //c.setIdLoan(movementDto.getIdLoan());
@@ -132,7 +176,7 @@ public class MovementServiceImpl implements MovementService {
                                         c.setAmount(movementDto.getAmount());
                                         c.setBalance(movementDto.getBalance());
                                         c.setCurrency(movementDto.getCurrency());
-                                        c.setMovementDate(new Date());
+                                        c.setMovementDate(LocalDateTime.now());
                                         return movementRepository.save(c);
                                     })
                             );

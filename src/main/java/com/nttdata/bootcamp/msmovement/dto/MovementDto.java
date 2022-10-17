@@ -6,11 +6,13 @@ import com.nttdata.bootcamp.msmovement.model.Credit;
 import com.nttdata.bootcamp.msmovement.model.Movement;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.codecs.jsr310.LocalDateCodec;
 import org.springframework.data.annotation.Id;
 import reactor.core.publisher.Mono;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
@@ -129,6 +131,10 @@ public class MovementDto {
     }
 
     public Mono<Movement> MapperToMovement(Credit credit) {
+        LocalDateTime date = LocalDateTime.now();
+        log.info("ini validateMovementLimit-------: LocalDateTime.now()" + LocalDateTime.now());
+        log.info("ini validateMovementLimit-------date: " + date);
+
         Movement movement = Movement.builder()
                 .idMovement(this.getIdMovement())
                 .credit(credit)
@@ -137,7 +143,10 @@ public class MovementDto {
                 .amount(this.getAmount())
                 .balance(this.getBalance())
                 .currency(this.getCurrency())
-                .movementDate(new Date())
+                .movementDate(date)
+                //.idCredit(this.getIdCredit())
+                //.idBankAccount(this.getIdBankAccount())
+                //.idLoan(this.getIdLoan())
                 .build();
 
         return Mono.just(movement);

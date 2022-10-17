@@ -21,7 +21,7 @@ public interface MovementRepository extends ReactiveMongoRepository<Movement, St
     @Query(value = "{$and:[{'movementDate':{$gte:  { '$date' : ?0} }},{'movementDate': {$lte:  { '$date' : ?1} }}],'accountNumber':?2}")
     Flux<Movement> findMovementsByDateRange(String iniDate,String finalDate,String accountNumber);
 
-    @Query(value = "{'credit.creditNumber' : ?0}")
+    @Aggregation(pipeline = {"{ '$match': { 'credit.creditNumber' : ?0 } }","{ '$sort' : { 'movementDate' : -1 } }","{'$limit': 1}"})
     public Mono<Movement> findByCreditNumber(Integer creditNumber);
 
 }

@@ -5,6 +5,7 @@ import com.nttdata.bootcamp.msmovement.dto.MovementDto;
 import com.nttdata.bootcamp.msmovement.exception.ResourceNotFoundException;
 import com.nttdata.bootcamp.msmovement.infrastructure.MovementRepository;
 import com.nttdata.bootcamp.msmovement.model.BankAccount;
+import com.nttdata.bootcamp.msmovement.model.Credit;
 import com.nttdata.bootcamp.msmovement.model.Movement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,7 @@ public class MovementServiceImpl implements MovementService {
 
     public Mono<BankAccount> findBankAccountByAccountNumber(String accountNumber) {
         WebClientConfig webconfig = new WebClientConfig();
-        return webconfig.setUriData("http://localhost:8090").flatMap(
+        return webconfig.setUriData("http://localhost:8085").flatMap(
                 d -> {
                     return webconfig.getWebclient().get().uri("/api/bankaccounts/accountNumber/" + accountNumber).retrieve().bodyToMono(BankAccount.class);
                 }
@@ -44,12 +45,24 @@ public class MovementServiceImpl implements MovementService {
 
     @Override
     public Mono<Movement> save(MovementDto movementDto) {
-        return movementDto.validateMovementType()
-                .flatMap(a -> findBankAccountByAccountNumber(movementDto.getAccountNumber()))
-                .flatMap(account -> validateAvailableAmount(account, movementDto, "save"))
-                .flatMap(a -> movementDto.MapperToMovement())
-                .flatMap(mvt -> movementRepository.save(mvt));
+        return findCreditByCreditNumber(String.valueOf(movementDto.getCreditNumber()))
+                .flatMap(credit -> {
+                    return movementDto.validateMovementType()
+                            //.flatMap(a -> findBankAccountByAccountNumber(movementDto.getAccountNumber()))//RACH
+                            //.flatMap(account -> validateAvailableAmount(account, movementDto, "save"))//RACH
+                            .flatMap(a -> movementDto.MapperToMovement(credit))
+                            .flatMap(mvt -> movementRepository.save(mvt));
+                });
+    }
 
+    public Mono<Credit> findCreditByCreditNumber(String creditNumber) { //RACH
+        log.info("Inicio----findLastMovementByMovementNumber-------: ");
+        WebClientConfig webconfig = new WebClientConfig();
+        return webconfig.setUriData("http://localhost:8084/").flatMap(
+                d -> {
+                    return webconfig.getWebclient().get().uri("/api/credits/creditNumber/" + creditNumber).retrieve().bodyToMono(Credit.class);
+                }
+        );
     }
 
     public Mono<Boolean> validateAvailableAmount(BankAccount bankAccount, MovementDto movementDto, String method) {
@@ -73,29 +86,30 @@ public class MovementServiceImpl implements MovementService {
         }
     }
 
-
     @Override
     public Mono<Movement> update(MovementDto movementDto, String idMovement) {
-
-        return movementDto.validateMovementType()
-                .flatMap(at -> findBankAccountByAccountNumber(movementDto.getAccountNumber()))
-                .flatMap(account -> validateAvailableAmount(account, movementDto, "update"))
-                .flatMap(a -> movementRepository.findById(idMovement)
-                        .switchIfEmpty(Mono.error(new ResourceNotFoundException("Movement", "IdMovement", idMovement)))
-                        .flatMap(c -> {
-                            //c.setNumberMovement(movementDto.getNumberMovement());
-                            c.setAccountNumber(movementDto.getAccountNumber());
-                            c.setMovementType(movementDto.getMovementType());
-                            c.setAmount(movementDto.getAmount());
-                            c.setBalance(movementDto.getBalance());
-                            c.setCurrency(movementDto.getCurrency());
-                            c.setMovementDate(new Date());
-                            c.setIdCredit(movementDto.getIdCredit());
-                            //c.setIdBankAccount(movementDto.getIdBankAccount());
-                            //c.setIdLoan(movementDto.getIdLoan());
-                            return movementRepository.save(c);
-                        })
-                );
+        return findCreditByCreditNumber(String.valueOf(movementDto.getCreditNumber()))
+                .flatMap(credit -> {
+                    return movementDto.validateMovementType()
+                            .flatMap(at -> findBankAccountByAccountNumber(movementDto.getAccountNumber()))
+                            .flatMap(account -> validateAvailableAmount(account, movementDto, "update"))
+                            .flatMap(a -> movementRepository.findById(idMovement)
+                                    .switchIfEmpty(Mono.error(new ResourceNotFoundException("Movement", "IdMovement", idMovement)))
+                                    .flatMap(c -> {
+                                        //c.setNumberMovement(movementDto.getNumberMovement());
+                                        c.setCredit(credit);
+                                        c.setAccountNumber(movementDto.getAccountNumber());
+                                        c.setMovementType(movementDto.getMovementType());
+                                        c.setAmount(movementDto.getAmount());
+                                        c.setBalance(movementDto.getBalance());
+                                        c.setCurrency(movementDto.getCurrency());
+                                        c.setMovementDate(new Date());
+                                        //c.setIdBankAccount(movementDto.getIdBankAccount());
+                                        //c.setIdLoan(movementDto.getIdLoan());
+                                        return movementRepository.save(c);
+                                    })
+                            );
+                });
     }
 
     @Override
@@ -111,9 +125,19 @@ public class MovementServiceImpl implements MovementService {
         return Mono.just(accountNumber)
                 .flatMap(movementRepository::findLastMovementByAccount);
     }
+
     @Override
     public Flux<MovementDto> findMovementsByAccountNumber(String accountNumber) {
         log.info("ini findMovementsByAccountNumber-------accountNumber: " + accountNumber);
         return movementRepository.findMovementsByAccount(accountNumber);
     }
+
+    @Override
+    public Mono<Movement> creditByCreditNumber(Integer creditNumber) {
+        return Mono.just(creditNumber)
+                .flatMap(movementRepository::findByCreditNumber)
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException("Movimiento", "creditNumber", String.valueOf(creditNumber))));
+    }
+
+
 }

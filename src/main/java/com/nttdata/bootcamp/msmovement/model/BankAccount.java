@@ -2,9 +2,8 @@ package com.nttdata.bootcamp.msmovement.model;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
-
 import javax.validation.constraints.NotEmpty;
-import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor

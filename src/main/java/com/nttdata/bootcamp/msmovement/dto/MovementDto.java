@@ -2,6 +2,7 @@ package com.nttdata.bootcamp.msmovement.dto;
 
 import com.nttdata.bootcamp.msmovement.exception.ResourceNotFoundException;
 import com.nttdata.bootcamp.msmovement.model.BankAccount;
+import com.nttdata.bootcamp.msmovement.model.Credit;
 import com.nttdata.bootcamp.msmovement.model.Movement;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -22,14 +23,15 @@ public class MovementDto {
     @Id
     private String idMovement;
 
-    @NotEmpty(message = "no debe estar vacío")
+    //@NotEmpty(message = "no debe estar vacío")
     private String accountNumber;
 
-    @NotEmpty(message = "no debe estar vacío")
-    private String numberDocument;
+    //@NotEmpty(message = "no debe estar vacío")
+    //private String numberDocument;
 
-    //@NotNull(message = "no debe estar nulo")
-    //private Integer numberMovement;
+    private Integer numberMovement;
+
+    private Integer creditNumber;
 
     @NotEmpty(message = "no debe estar vacío")
     private String movementType;
@@ -41,8 +43,6 @@ public class MovementDto {
 
     @NotEmpty(message = "no debe estar vacio")
     private String currency;
-
-    private String idCredit;
 
     public Mono<Boolean> validateMovementType(){
         log.info("ini validateMovementType-------: " );
@@ -100,19 +100,16 @@ public class MovementDto {
         });
     }
 
-    public Mono<Movement> MapperToMovement() {
+    public Mono<Movement> MapperToMovement(Credit credit) {
         Movement movement = Movement.builder()
-                //.idBankAccount(this.getIdBankAccount())
+                .idMovement(this.getIdMovement())
+                .credit(credit)
                 .accountNumber(this.getAccountNumber())
-                //.numberMovement(this.getNumberMovement())
                 .movementType(this.getMovementType())
                 .amount(this.getAmount())
                 .balance(this.getBalance())
                 .currency(this.getCurrency())
                 .movementDate(new Date())
-                .idCredit(this.getIdCredit())
-                //.idBankAccount(this.getIdBankAccount())
-                //.idLoan(this.getIdLoan())
                 .build();
 
         return Mono.just(movement);

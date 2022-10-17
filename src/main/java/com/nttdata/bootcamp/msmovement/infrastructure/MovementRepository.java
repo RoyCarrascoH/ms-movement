@@ -3,6 +3,7 @@ package com.nttdata.bootcamp.msmovement.infrastructure;
 import com.nttdata.bootcamp.msmovement.dto.MovementDto;
 import com.nttdata.bootcamp.msmovement.model.Movement;
 import org.springframework.data.mongodb.repository.Aggregation;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -16,4 +17,8 @@ public interface MovementRepository extends ReactiveMongoRepository<Movement, St
 
     @Aggregation(pipeline = {"{ '$match': { 'accountNumber' : ?0 } }","{ '$sort' : { 'movementDate' : -1 } }"})
     Flux<MovementDto> findMovementsByAccount(String accountNumber) ;
+
+    @Query(value = "{'credit.creditNumber' : ?0}")
+    public Mono<Movement> findByCreditNumber(Integer creditNumber);
+
 }

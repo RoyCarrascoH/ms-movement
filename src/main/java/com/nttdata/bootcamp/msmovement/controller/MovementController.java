@@ -41,7 +41,7 @@ public class MovementController {
         Map<String, Object> request = new HashMap<>();
         return movementDto.flatMap(mvDto -> {
             return service.save(mvDto).map(c -> {
-                request.put("Credito", c);
+                request.put("Movimiento", c);
                 request.put("mensaje", "Movimiento de Credito guardado con exito");
                 request.put("timestamp", new Date());
                 return ResponseEntity.created(URI.create("/api/movements/".concat(c.getIdMovement())))
@@ -77,5 +77,10 @@ public class MovementController {
                 })
                 .collectList()
                 .map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
+    }
+
+    @GetMapping("creditNumber/{creditNumber}") //RACH
+    public Mono<ResponseEntity<Movement>> creditByCreditNumber(@PathVariable("creditNumber") Integer creditNumber){
+        return service.creditByCreditNumber(creditNumber).map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
     }
 }

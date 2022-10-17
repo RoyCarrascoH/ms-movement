@@ -17,4 +17,6 @@ public interface MovementService {
 
     public Flux<MovementDto> findMovementsByAccountNumber(String accountNumber);
 
+    public Mono<Movement> creditByCreditNumber(Integer creditNumber);
+
 }

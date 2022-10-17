@@ -41,13 +41,34 @@ public class MovementController {
         Map<String, Object> request = new HashMap<>();
         return movementDto.flatMap(mvDto -> {
             return service.save(mvDto).map(c -> {
-                request.put("Credito", c);
+                request.put("Movimiento", c);
+                request.put("mensaje", "Movimiento de  guardado con exito");
+                request.put("timestamp", new Date());
+                return ResponseEntity.created(URI.create("/api/movements/".concat(c.getIdMovement())))
+                        .contentType(MediaType.APPLICATION_JSON_UTF8).body(request);
+            });
+        });
+    }
+
+    @PostMapping("/creditCardAndLoan")
+    public Mono<ResponseEntity<Map<String, Object>>> saveMovementCreditLoan(@Valid @RequestBody Mono<MovementDto> movementDto) {
+        Map<String, Object> request = new HashMap<>();
+        return movementDto.flatMap(mvDto -> {
+            return service.saveCreditLoan(mvDto).map(c -> {
+                request.put("Movimiento", c);
                 request.put("mensaje", "Movimiento de Credito guardado con exito");
                 request.put("timestamp", new Date());
                 return ResponseEntity.created(URI.create("/api/movements/".concat(c.getIdMovement())))
                         .contentType(MediaType.APPLICATION_JSON_UTF8).body(request);
             });
         });
+    }
+
+    @PutMapping("creditCardAndLoan/{idMovement}")
+    public Mono<ResponseEntity<Movement>> editMovementCreditCardAndLoan(@Valid @RequestBody MovementDto movementDto, @PathVariable("idMovement") String idMovement) {
+        return service.updateCreditCardLoan(movementDto, idMovement)
+                .map(c -> ResponseEntity.created(URI.create("/api/movements/".concat(idMovement)))
+                        .contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
     }
 
     @PutMapping("/{idMovement}")
@@ -78,4 +99,16 @@ public class MovementController {
                 .collectList()
                 .map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
     }
+
+    @GetMapping("creditNumber/{creditNumber}")
+    public Mono<ResponseEntity<Movement>> creditByCreditNumber(@PathVariable("creditNumber") Integer creditNumber){
+        return service.creditByCreditNumber(creditNumber).map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
+    }
+
+    @GetMapping("documentDocument/{documentDocument}")
+    public Mono<ResponseEntity<Movement>> paymentDocumentNumber(@PathVariable("creditNumber") Integer creditNumber){
+        return service.creditByCreditNumber(creditNumber).map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
+    }
+
+
 }

@@ -2,6 +2,7 @@ package com.nttdata.bootcamp.msmovement.dto;
 
 import com.nttdata.bootcamp.msmovement.exception.ResourceNotFoundException;
 import com.nttdata.bootcamp.msmovement.model.BankAccount;
+import com.nttdata.bootcamp.msmovement.model.Credit;
 import com.nttdata.bootcamp.msmovement.model.Movement;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Date;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -24,14 +26,15 @@ public class MovementDto {
     @Id
     private String idMovement;
 
-    @NotEmpty(message = "no debe estar vacío")
+    //@NotEmpty(message = "no debe estar vacío")
     private String accountNumber;
 
-    @NotEmpty(message = "no debe estar vacío")
-    private String numberDocument;
+    //@NotEmpty(message = "no debe estar vacío")
+    //private String numberDocument;
 
-    //@NotNull(message = "no debe estar nulo")
-    //private Integer numberMovement;
+    private Integer numberMovement;
+
+    private Integer creditNumber;
 
     @NotEmpty(message = "no debe estar vacío")
     private String movementType;
@@ -44,26 +47,40 @@ public class MovementDto {
     @NotEmpty(message = "no debe estar vacio")
     private String currency;
 
-    public Mono<Boolean> validateMovementType(){
-        log.info("ini validateMovementType-------: " );
-        return Mono.just(this.getMovementType()).flatMap( ct -> {
+    public Mono<Boolean> validateMovementType() {
+        log.info("ini validateMovementType-------: ");
+        return Mono.just(this.getMovementType()).flatMap(ct -> {
             Boolean isOk = false;
-            if(this.getMovementType().equals("deposit")){ // deposito.
+            if (this.getMovementType().equals("deposit")) { // deposito.
                 isOk = true;
-            }
-            else if(this.getMovementType().equals("withdrawal")){ // retiro.
+            } else if (this.getMovementType().equals("withdrawal")) { // retiro.
                 isOk = true;
-            }
-            else{
+            } else {
                 return Mono.error(new ResourceNotFoundException("Tipo movimiento", "getMovementType", this.getMovementType()));
             }
-            log.info("fn validateMovementType-------: " );
+            log.info("fn validateMovementType-------: ");
+            return Mono.just(isOk);
+        });
+    }
+
+    public Mono<Boolean> validateMovementTypeCreditLoan() {
+        log.info("Inicio validateMovementTypeCreditLoan-------: ");
+        return Mono.just(this.getMovementType()).flatMap(ct -> {
+            Boolean isOk = false;
+            if (this.getMovementType().equals("payment")) { // deposito.
+                isOk = true;
+            } else if (this.getMovementType().equals("consumption")) { // retiro.
+                isOk = true;
+            } else {
+                return Mono.error(new ResourceNotFoundException("Tipo movimiento", "getMovementType", this.getMovementType()));
+            }
+            log.info("Fin validateMovementTypeCreditLoan-------: ");
             return Mono.just(isOk);
         });
     }
 
     public Mono<Boolean> validateAvailableAmount(BankAccount bankAccount, MovementDto lastMovement) {
-        log.info("ini validateMovementType-------: " );
+        log.info("ini validateMovementType-------: ");
         log.info("ini validateMovementType-------: lastMovement.toString() " + lastMovement.toString());
         return Mono.just(this.getMovementType()).flatMap(ct -> {
             Boolean isOk = false;
@@ -99,15 +116,15 @@ public class MovementDto {
         });
     }
 
-    public Mono<Movement> MapperToMovement() {
+    public Mono<Movement> MapperToMovement(Credit credit) {
         LocalDateTime date = LocalDateTime.now();
         log.info("ini validateMovementLimit-------: LocalDateTime.now()" + LocalDateTime.now());
         log.info("ini validateMovementLimit-------date: " + date);
 
         Movement movement = Movement.builder()
-                //.idBankAccount(this.getIdBankAccount())
+                .idMovement(this.getIdMovement())
+                .credit(credit)
                 .accountNumber(this.getAccountNumber())
-                //.numberMovement(this.getNumberMovement())
                 .movementType(this.getMovementType())
                 .amount(this.getAmount())
                 .balance(this.getBalance())

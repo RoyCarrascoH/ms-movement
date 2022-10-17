@@ -1,6 +1,10 @@
 package com.nttdata.bootcamp.msmovement.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import javax.validation.constraints.NotEmpty;
@@ -37,7 +41,7 @@ public class Movement {
 
     private LocalDateTime movementDate;
 
-    private String idCredit;
+    private Credit credit;
 
     private String idBankAccount;
 

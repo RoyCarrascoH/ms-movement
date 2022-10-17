@@ -18,12 +18,10 @@ public interface MovementRepository extends ReactiveMongoRepository<Movement, St
     @Aggregation(pipeline = {"{ '$match': { 'accountNumber' : ?0 } }","{ '$sort' : { 'movementDate' : -1 } }"})
     Flux<MovementDto> findMovementsByAccount(String accountNumber) ;
 
-<<<<<<< HEAD
     @Query(value = "{$and:[{'movementDate':{$gte:  { '$date' : ?0} }},{'movementDate': {$lte:  { '$date' : ?1} }}],'accountNumber':?2}")
     Flux<Movement> findMovementsByDateRange(String iniDate,String finalDate,String accountNumber);
-=======
+
     @Query(value = "{'credit.creditNumber' : ?0}")
     public Mono<Movement> findByCreditNumber(Integer creditNumber);
 
->>>>>>> 334e5127463b7986fc08ae4b645aeac6f3fa148c
 }

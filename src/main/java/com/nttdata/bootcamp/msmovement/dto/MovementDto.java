@@ -42,14 +42,17 @@ public class MovementDto {
     @NotEmpty(message = "no debe estar vacio")
     private String currency;
 
+    private String idCredit;
+
     public Mono<Boolean> validateMovementType(){
         log.info("ini validateMovementType-------: " );
         return Mono.just(this.getMovementType()).flatMap( ct -> {
             Boolean isOk = false;
             if(this.getMovementType().equals("deposit")){ // deposito.
                 isOk = true;
-            }
-            else if(this.getMovementType().equals("withdrawal")){ // retiro.
+            }else if(this.getMovementType().equals("withdrawal")){ // retiro.
+                isOk = true;
+            }else if(this.getMovementType().equals("payment")){ // pago.
                 isOk = true;
             }
             else{
@@ -107,7 +110,7 @@ public class MovementDto {
                 .balance(this.getBalance())
                 .currency(this.getCurrency())
                 .movementDate(new Date())
-                //.idCredit(this.getIdCredit())
+                .idCredit(this.getIdCredit())
                 //.idBankAccount(this.getIdBankAccount())
                 //.idLoan(this.getIdLoan())
                 .build();

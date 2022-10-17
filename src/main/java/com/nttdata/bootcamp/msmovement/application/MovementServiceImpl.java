@@ -90,7 +90,7 @@ public class MovementServiceImpl implements MovementService {
                             c.setBalance(movementDto.getBalance());
                             c.setCurrency(movementDto.getCurrency());
                             c.setMovementDate(new Date());
-                            //c.setIdCredit(movementDto.getIdCredit());
+                            c.setIdCredit(movementDto.getIdCredit());
                             //c.setIdBankAccount(movementDto.getIdBankAccount());
                             //c.setIdLoan(movementDto.getIdLoan());
                             return movementRepository.save(c);

@@ -66,10 +66,12 @@ public class MovementDto {
         return Mono.just(this.getMovementType()).flatMap(ct -> {
             Boolean isOk = false;
             if (this.getMovementType().equals("payment")) { // pago.
+                log.info("Fin validateMovementTypeCreditLoan-------: ");
                 return this.validateCreditCardAndLoanPayment();
             } else if (this.getMovementType().equals("consumption")) { // consumo.
                 log.info("Fin validateMovementTypeCreditLoan-------: ");
-                return Mono.just(isOk);
+                return this.validateCreditCardAndLoanConsumption();
+                //return Mono.just(isOk);
             } else {
                 return Mono.error(new ResourceNotFoundException("Tipo movimiento", "getMovementType", this.getMovementType()));
             }
@@ -128,6 +130,20 @@ public class MovementDto {
                 return Mono.error(new ResourceNotFoundException("Movimiento Credito(Pago) no se puede realizar porque no tiene Saldo por pagar"));
             }
             log.info("Fin validateCreditCardAndLoanPayment-------: ");
+            return Mono.just(isOk);
+        });
+    }
+
+    public Mono<Boolean> validateCreditCardAndLoanConsumption() { //Validar consumo de saldo de limite de Credito
+        log.info("Inicio validateCreditCardAndLoanConsumption-------: ");
+        return Mono.just(this.getBalance()).flatMap(ct -> {
+            Boolean isOk = false;
+            if (this.getAmount() <= this.getBalance()) {
+                isOk = true;
+            } else {
+                return Mono.error(new ResourceNotFoundException("Movimiento de credito(Consumo) supera tu saldo de tu linea de credito"));
+            }
+            log.info("Fin validateCreditCardAndLoanConsumption-------: ");
             return Mono.just(isOk);
         });
     }

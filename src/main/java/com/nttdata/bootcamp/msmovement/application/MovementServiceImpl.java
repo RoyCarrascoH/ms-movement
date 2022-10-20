@@ -104,7 +104,7 @@ public class MovementServiceImpl implements MovementService {
                 });
     }
 
-    public Mono<Credit> findCreditByCreditNumber(String creditNumber) { //RACH
+    public Mono<Credit> findCreditByCreditNumber(String creditNumber) { //RACH Falta LoanNumber
         log.info("Inicio----findLastMovementByMovementNumber-------: ");
         WebClientConfig webconfig = new WebClientConfig();
         return webconfig.setUriData("http://localhost:8084/").flatMap(

@@ -47,4 +47,6 @@ public class Movement {
 
     private String idLoan;
 
+    private Double commission;
+
 }

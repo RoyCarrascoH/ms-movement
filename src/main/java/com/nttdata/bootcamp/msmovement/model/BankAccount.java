@@ -9,6 +9,7 @@ import javax.validation.constraints.NotEmpty;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class BankAccount {
 
     @Id
@@ -31,6 +32,10 @@ public class BankAccount {
     private Integer maximumMovement;
 
     private Double startingAmount;
+
+    private Double transactionLimit;
+
+    private Double commissionTransaction;
 
     @NotEmpty(message = "no debe estar vacío")
     private String currency;

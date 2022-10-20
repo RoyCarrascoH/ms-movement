@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
 import java.time.LocalDateTime;
 import java.util.Calendar;
 
@@ -47,13 +48,22 @@ public class MovementServiceImpl implements MovementService {
     public Mono<Movement> save(MovementDto movementDto) {
         return movementDto.validateMovementType()
                 .flatMap(a -> findBankAccountByAccountNumber(movementDto.getAccountNumber()))
-                .flatMap(account -> validateMovementLimit(account, "save").then(Mono.just(account)))
+                .flatMap(account -> validateMovementLimit(account)
+                        .flatMap(o -> {
+                            log.info("sg validateMovementLimit-------0: " + o.toString());
+                            if (o.equals(true)) {
+                                log.info("sg validateMovementLimit-------account.getCommissionTransaction(): " + account.getCommissionTransaction().toString());
+                                log.info("sg validateMovementLimit-------movementDto.getAmount(): " + movementDto.getAmount().toString());
+                                movementDto.setCommission(((account.getCommissionTransaction() / 100) * movementDto.getAmount()));
+                            }
+                            return Mono.just(account);
+                        }))
                 .flatMap(account -> validateAvailableAmount(account, movementDto, "save"))
                 .flatMap(a -> movementDto.MapperToMovement(null))
                 .flatMap(mvt -> movementRepository.save(mvt));
     }
 
-    public Mono<Boolean> validateMovementLimit(BankAccount bankAccount, String method) {
+    public Mono<Boolean> validateMovementLimit(BankAccount bankAccount) {
         log.info("ini validateMovementLimit-------: ");
 
 
@@ -78,19 +88,35 @@ public class MovementServiceImpl implements MovementService {
             }
         }
 
-        if (bankAccount.getMaximumMovement() != null) {
-            return movementRepository.findMovementsByDateRange(startDate, endDate, bankAccount.getAccountNumber()).count()
-                    .flatMap(c -> {
-                        log.info("ini validateMovementLimit-------cantidad: " + c);
-                        log.info("ini validateMovementLimit-------cantidad: " + bankAccount.getMaximumMovement());
-                        if (c >= bankAccount.getMaximumMovement()) {
+        return movementRepository.findMovementsByDateRange(startDate, endDate, bankAccount.getAccountNumber())
+                .count()
+                .flatMap(cnt -> {
+                    log.info("ini validateMovementLimit-------cantidad: " + cnt);
+                    log.info("ini validateMovementLimit-------cantidad: " + ( bankAccount.getMaximumMovement() != null ? bankAccount.getMaximumMovement() : "") );
+
+                    if (bankAccount.getMaximumMovement() != null) {
+                        if (cnt >= bankAccount.getMaximumMovement()) {
                             return Mono.error(new ResourceNotFoundException("Máximo movimientos", "MaximumMovement", bankAccount.getMaximumMovement().toString()));
                         } else {
-                            return Mono.just(true);
+                            return validateTransactionLimit(bankAccount, cnt);
                         }
-                    });
-        } else {
-            return Mono.just(true);
+                    } else {
+                        return validateTransactionLimit(bankAccount, cnt);
+                    }
+                });
+    }
+
+    public Mono<Boolean> validateTransactionLimit(BankAccount bankAccount, Long count) {
+        log.info("ini validateTransactionLimit-------count: " + count);
+        log.info("ini2 validateTransactionLimit-------bankAccount: " + bankAccount.toString());
+        if(bankAccount.getTransactionLimit() != null){
+            if (count >= bankAccount.getTransactionLimit()) {
+                return Mono.just(true);
+            } else {
+                return Mono.just(false);
+            }
+        }else{
+            return Mono.just(false);
         }
     }
 

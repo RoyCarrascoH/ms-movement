@@ -43,6 +43,8 @@ public class MovementDto {
     @NotEmpty(message = "no debe estar vacio")
     private String currency;
 
+    private Double commission;
+
     public Mono<Boolean> validateMovementType() {
         log.info("ini validateMovementType-------: ");
         return Mono.just(this.getMovementType()).flatMap(ct -> {
@@ -144,6 +146,7 @@ public class MovementDto {
                 .balance(this.getBalance())
                 .currency(this.getCurrency())
                 .movementDate(date)
+                .commission(this.getCommission())
                 //.idCredit(this.getIdCredit())
                 //.idBankAccount(this.getIdBankAccount())
                 //.idLoan(this.getIdLoan())

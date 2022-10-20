@@ -26,4 +26,7 @@ public interface MovementService {
 
     public Mono<Movement> creditByCreditNumber(Integer creditNumber);
 
+    public Flux<MovementDto> findMovementsByLoanNumber(String accountNumber);
+
+    public Flux<MovementDto> findMovementsByCreditNumber(Integer creditNumber);
 }

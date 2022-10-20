@@ -12,16 +12,16 @@ import org.springframework.data.annotation.Id;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Credit {
+public class Loan {
 
     @Id
-    private String idCredit;
+    private String idLoan;
     private Client client;
-    private Integer creditNumber;
-    private String creditType;
-    private Double creditLineAmount;
+    private Integer loanNumber;
+    private String loanType;
+    private Double loanAmount;
     private String currency;
-    private Boolean status;
+    private Integer numberQuotas;
+    private String status;
     private Double balance;
-
 }

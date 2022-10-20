@@ -105,4 +105,24 @@ public class MovementController {
         return service.creditByCreditNumber(creditNumber).map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
     }
 
+    @GetMapping("client/loanNumber/{loanNumber}")
+    public Mono<ResponseEntity<List<MovementDto>>> getMovementsByLoanNumber(@PathVariable("loanNumber") String loanNumber) {
+        return service.findMovementsByLoanNumber(loanNumber).flatMap( mm ->{
+                    log.info("--getMovementsByLoanNumber-------: " + mm.toString());
+                    return Mono.just(mm);
+                })
+                .collectList()
+                .map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
+    }
+
+    @GetMapping("client/creditNumber/{creditNumber}")
+    public Mono<ResponseEntity<List<MovementDto>>> getMovementsByCreditNumber(@PathVariable("creditNumber") Integer creditNumber) {
+        return service.findMovementsByCreditNumber(creditNumber).flatMap( mm ->{
+                    log.info("--findMovementsByCreditNumber-------: " + mm.toString());
+                    return Mono.just(mm);
+                })
+                .collectList()
+                .map(c -> ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON_UTF8).body(c));
+    }
+
 }

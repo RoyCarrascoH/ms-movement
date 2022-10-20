@@ -104,7 +104,6 @@ public class MovementServiceImpl implements MovementService {
                 });
     }
 
-
     public Mono<Credit> findCreditByCreditNumber(String creditNumber) { //RACH
         log.info("Inicio----findLastMovementByMovementNumber-------: ");
         WebClientConfig webconfig = new WebClientConfig();
@@ -208,5 +207,16 @@ public class MovementServiceImpl implements MovementService {
         //.switchIfEmpty(Mono.error(new ResourceNotFoundException("Movimiento", "creditNumber", String.valueOf(creditNumber))));
     }
 
+    @Override
+    public Flux<MovementDto> findMovementsByLoanNumber(String loanNumber) {
+        log.info("Inicio findMovementsByLoanNumber-------loanNumber: " + loanNumber);
+        return movementRepository.findMovementsByLoanNumber(loanNumber);
+    }
+
+    @Override
+    public Flux<MovementDto> findMovementsByCreditNumber(Integer creditNumber) {
+        log.info("Inicio findMovementsByCreditNumber-------creditNumber: " + creditNumber);
+        return movementRepository.findMovementsByCreditNumber(String.valueOf(creditNumber));
+    }
 
 }

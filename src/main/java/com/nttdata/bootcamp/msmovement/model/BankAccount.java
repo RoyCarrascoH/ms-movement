@@ -1,6 +1,10 @@
 package com.nttdata.bootcamp.msmovement.model;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import javax.validation.constraints.NotEmpty;
 
@@ -34,5 +38,7 @@ public class BankAccount {
 
     @NotEmpty(message = "no debe estar vacío")
     private String currency;
+
+
 
 }

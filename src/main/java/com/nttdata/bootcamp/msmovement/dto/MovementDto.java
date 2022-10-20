@@ -32,6 +32,8 @@ public class MovementDto {
 
     private Integer creditNumber;
 
+    private Integer loanNumber;
+
     @NotEmpty(message = "no debe estar vacío")
     private String movementType;
 

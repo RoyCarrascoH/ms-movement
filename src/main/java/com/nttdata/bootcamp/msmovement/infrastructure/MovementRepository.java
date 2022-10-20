@@ -24,4 +24,10 @@ public interface MovementRepository extends ReactiveMongoRepository<Movement, St
     @Aggregation(pipeline = {"{ '$match': { 'credit.creditNumber' : ?0 } }","{ '$sort' : { 'movementDate' : -1 } }","{'$limit': 1}"})
     public Mono<Movement> findByCreditNumber(Integer creditNumber);
 
+    @Aggregation(pipeline = {"{ '$match': { 'loan.loanNumber' : ?0 } }","{ '$sort' : { 'movementDate' : -1 } }"})
+    Flux<MovementDto> findMovementsByLoanNumber(String loanNumber) ;
+
+    @Aggregation(pipeline = {"{ '$match': { 'loan.loanNumber' : ?0 } }","{ '$sort' : { 'movementDate' : -1 } }"})
+    Flux<MovementDto> findMovementsByCreditNumber(String creditNumber) ;
+
 }

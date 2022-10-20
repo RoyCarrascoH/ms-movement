@@ -45,7 +45,7 @@ public class Movement {
 
     private String idBankAccount;
 
-    private String idLoan;
+    private Loan loan;
 
     private Double commission;
 

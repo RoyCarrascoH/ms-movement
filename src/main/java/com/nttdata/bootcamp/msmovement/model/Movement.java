@@ -1,16 +1,12 @@
 package com.nttdata.bootcamp.msmovement.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.Builder;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Document(collection = "Movement")
 @Getter
@@ -18,6 +14,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class Movement {
 
     @Id
@@ -48,5 +45,7 @@ public class Movement {
     private Loan loan;
 
     private Double commission;
+
+    private BankAccount bankAccountTransfer;
 
 }

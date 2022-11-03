@@ -29,4 +29,5 @@ public interface MovementService {
     public Flux<MovementDto> findMovementsByLoanNumber(String accountNumber);
 
     public Flux<MovementDto> findMovementsByCreditNumber(Integer creditNumber);
+
 }

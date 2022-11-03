@@ -1,17 +1,14 @@
 package com.nttdata.bootcamp.msmovement.model;
 
-import lombok.Builder;
+import lombok.*;
 import org.springframework.data.annotation.Id;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString
 public class Client {
 
     @Id
